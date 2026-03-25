@@ -471,6 +471,39 @@ export interface AnalyticsSummary {
   totalLikes: number;
 }
 
+export type ImportResultItemStatus =
+  (typeof ImportResultItemStatus)[keyof typeof ImportResultItemStatus];
+
+export const ImportResultItemStatus = {
+  success: "success",
+  error: "error",
+  skipped: "skipped",
+} as const;
+
+export type ImportResultItemType =
+  (typeof ImportResultItemType)[keyof typeof ImportResultItemType];
+
+export const ImportResultItemType = {
+  instrumental: "instrumental",
+  lyric: "lyric",
+  song: "song",
+} as const;
+
+export interface ImportResultItem {
+  fileName: string;
+  status: ImportResultItemStatus;
+  message?: string | null;
+  id?: number | null;
+  type: ImportResultItemType;
+}
+
+export interface ImportResult {
+  total: number;
+  succeeded: number;
+  failed: number;
+  items: ImportResultItem[];
+}
+
 export type ListLyricsParams = {
   projectId?: number;
 };
@@ -485,4 +518,19 @@ export type ListSongsParams = {
 
 export type ListAnalyticsParams = {
   songId?: number;
+};
+
+export type ImportInstrumentalsBody = {
+  files?: Blob[];
+  projectId?: number;
+};
+
+export type ImportLyricsBody = {
+  files?: Blob[];
+  projectId?: number;
+};
+
+export type ImportStudioOneBody = {
+  files?: Blob[];
+  projectId?: number;
 };

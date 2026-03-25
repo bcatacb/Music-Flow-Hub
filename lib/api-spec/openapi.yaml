@@ -21,6 +21,8 @@ tags:
     description: Release plans
   - name: analytics
     description: Play/stream analytics
+  - name: import
+    description: Bulk import from files
 
 paths:
   /healthz:
@@ -493,6 +495,88 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AnalyticsSummary"
+
+  # ─── Import ──────────────────────────────────────────────────────────────────
+  /import/instrumentals:
+    post:
+      operationId: importInstrumentals
+      tags: [instrumentals]
+      summary: Bulk import instrumentals from audio files
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                projectId:
+                  type: integer
+      responses:
+        "200":
+          description: Import results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportResult"
+
+  /import/lyrics:
+    post:
+      operationId: importLyrics
+      tags: [lyrics]
+      summary: Bulk import lyrics from text files
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                projectId:
+                  type: integer
+      responses:
+        "200":
+          description: Import results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportResult"
+
+  /import/studio-one:
+    post:
+      operationId: importStudioOne
+      tags: [songs]
+      summary: Import a Studio One .song project file
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                projectId:
+                  type: integer
+      responses:
+        "200":
+          description: Import results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportResult"
 
 components:
   parameters:
@@ -1189,3 +1273,37 @@ components:
         totalLikes:
           type: integer
       required: [songId, songTitle, totalStreams, totalDownloads, totalLikes]
+
+    ImportResultItem:
+      type: object
+      properties:
+        fileName:
+          type: string
+        status:
+          type: string
+          enum: [success, error, skipped]
+        message:
+          type: string
+          nullable: true
+        id:
+          type: integer
+          nullable: true
+        type:
+          type: string
+          enum: [instrumental, lyric, song]
+      required: [fileName, status, type]
+
+    ImportResult:
+      type: object
+      properties:
+        total:
+          type: integer
+        succeeded:
+          type: integer
+        failed:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImportResultItem"
+      required: [total, succeeded, failed, items]

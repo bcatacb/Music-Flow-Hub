@@ -685,3 +685,72 @@ export const GetAnalyticsSummaryResponseItem = zod.object({
 export const GetAnalyticsSummaryResponse = zod.array(
   GetAnalyticsSummaryResponseItem,
 );
+
+/**
+ * @summary Bulk import instrumentals from audio files
+ */
+export const ImportInstrumentalsBody = zod.object({
+  files: zod.array(zod.instanceof(File)).optional(),
+  projectId: zod.number().optional(),
+});
+
+export const ImportInstrumentalsResponse = zod.object({
+  total: zod.number(),
+  succeeded: zod.number(),
+  failed: zod.number(),
+  items: zod.array(
+    zod.object({
+      fileName: zod.string(),
+      status: zod.enum(["success", "error", "skipped"]),
+      message: zod.string().nullish(),
+      id: zod.number().nullish(),
+      type: zod.enum(["instrumental", "lyric", "song"]),
+    }),
+  ),
+});
+
+/**
+ * @summary Bulk import lyrics from text files
+ */
+export const ImportLyricsBody = zod.object({
+  files: zod.array(zod.instanceof(File)).optional(),
+  projectId: zod.number().optional(),
+});
+
+export const ImportLyricsResponse = zod.object({
+  total: zod.number(),
+  succeeded: zod.number(),
+  failed: zod.number(),
+  items: zod.array(
+    zod.object({
+      fileName: zod.string(),
+      status: zod.enum(["success", "error", "skipped"]),
+      message: zod.string().nullish(),
+      id: zod.number().nullish(),
+      type: zod.enum(["instrumental", "lyric", "song"]),
+    }),
+  ),
+});
+
+/**
+ * @summary Import a Studio One .song project file
+ */
+export const ImportStudioOneBody = zod.object({
+  files: zod.array(zod.instanceof(File)).optional(),
+  projectId: zod.number().optional(),
+});
+
+export const ImportStudioOneResponse = zod.object({
+  total: zod.number(),
+  succeeded: zod.number(),
+  failed: zod.number(),
+  items: zod.array(
+    zod.object({
+      fileName: zod.string(),
+      status: zod.enum(["success", "error", "skipped"]),
+      message: zod.string().nullish(),
+      id: zod.number().nullish(),
+      type: zod.enum(["instrumental", "lyric", "song"]),
+    }),
+  ),
+});

@@ -8,6 +8,7 @@ import {
   Music, 
   Radio, 
   BarChart3,
+  Upload,
   LogOut,
   Settings,
   Bell
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { href: "/instrumentals", label: "Beats", icon: Piano },
   { href: "/releases", label: "Releases", icon: Radio },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/import", label: "Import", icon: Upload },
 ];
 
 export function StudioLayout({ children }: { children: ReactNode }) {

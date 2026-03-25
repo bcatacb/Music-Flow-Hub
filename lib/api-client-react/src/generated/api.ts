@@ -26,6 +26,10 @@ import type {
   CreateRelease,
   CreateSong,
   HealthStatus,
+  ImportInstrumentalsBody,
+  ImportLyricsBody,
+  ImportResult,
+  ImportStudioOneBody,
   Instrumental,
   ListAnalyticsParams,
   ListInstrumentalsParams,
@@ -2524,3 +2528,286 @@ export function useGetAnalyticsSummary<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Bulk import instrumentals from audio files
+ */
+export const getImportInstrumentalsUrl = () => {
+  return `/api/import/instrumentals`;
+};
+
+export const importInstrumentals = async (
+  importInstrumentalsBody: ImportInstrumentalsBody,
+  options?: RequestInit,
+): Promise<ImportResult> => {
+  const formData = new FormData();
+  if (importInstrumentalsBody.files !== undefined) {
+    importInstrumentalsBody.files.forEach((value) =>
+      formData.append(`files`, value),
+    );
+  }
+  if (importInstrumentalsBody.projectId !== undefined) {
+    formData.append(`projectId`, importInstrumentalsBody.projectId.toString());
+  }
+
+  return customFetch<ImportResult>(getImportInstrumentalsUrl(), {
+    ...options,
+    method: "POST",
+    body: formData,
+  });
+};
+
+export const getImportInstrumentalsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof importInstrumentals>>,
+    TError,
+    { data: BodyType<ImportInstrumentalsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof importInstrumentals>>,
+  TError,
+  { data: BodyType<ImportInstrumentalsBody> },
+  TContext
+> => {
+  const mutationKey = ["importInstrumentals"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof importInstrumentals>>,
+    { data: BodyType<ImportInstrumentalsBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return importInstrumentals(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ImportInstrumentalsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof importInstrumentals>>
+>;
+export type ImportInstrumentalsMutationBody = BodyType<ImportInstrumentalsBody>;
+export type ImportInstrumentalsMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Bulk import instrumentals from audio files
+ */
+export const useImportInstrumentals = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof importInstrumentals>>,
+    TError,
+    { data: BodyType<ImportInstrumentalsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof importInstrumentals>>,
+  TError,
+  { data: BodyType<ImportInstrumentalsBody> },
+  TContext
+> => {
+  return useMutation(getImportInstrumentalsMutationOptions(options));
+};
+
+/**
+ * @summary Bulk import lyrics from text files
+ */
+export const getImportLyricsUrl = () => {
+  return `/api/import/lyrics`;
+};
+
+export const importLyrics = async (
+  importLyricsBody: ImportLyricsBody,
+  options?: RequestInit,
+): Promise<ImportResult> => {
+  const formData = new FormData();
+  if (importLyricsBody.files !== undefined) {
+    importLyricsBody.files.forEach((value) => formData.append(`files`, value));
+  }
+  if (importLyricsBody.projectId !== undefined) {
+    formData.append(`projectId`, importLyricsBody.projectId.toString());
+  }
+
+  return customFetch<ImportResult>(getImportLyricsUrl(), {
+    ...options,
+    method: "POST",
+    body: formData,
+  });
+};
+
+export const getImportLyricsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof importLyrics>>,
+    TError,
+    { data: BodyType<ImportLyricsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof importLyrics>>,
+  TError,
+  { data: BodyType<ImportLyricsBody> },
+  TContext
+> => {
+  const mutationKey = ["importLyrics"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof importLyrics>>,
+    { data: BodyType<ImportLyricsBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return importLyrics(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ImportLyricsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof importLyrics>>
+>;
+export type ImportLyricsMutationBody = BodyType<ImportLyricsBody>;
+export type ImportLyricsMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Bulk import lyrics from text files
+ */
+export const useImportLyrics = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof importLyrics>>,
+    TError,
+    { data: BodyType<ImportLyricsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof importLyrics>>,
+  TError,
+  { data: BodyType<ImportLyricsBody> },
+  TContext
+> => {
+  return useMutation(getImportLyricsMutationOptions(options));
+};
+
+/**
+ * @summary Import a Studio One .song project file
+ */
+export const getImportStudioOneUrl = () => {
+  return `/api/import/studio-one`;
+};
+
+export const importStudioOne = async (
+  importStudioOneBody: ImportStudioOneBody,
+  options?: RequestInit,
+): Promise<ImportResult> => {
+  const formData = new FormData();
+  if (importStudioOneBody.files !== undefined) {
+    importStudioOneBody.files.forEach((value) =>
+      formData.append(`files`, value),
+    );
+  }
+  if (importStudioOneBody.projectId !== undefined) {
+    formData.append(`projectId`, importStudioOneBody.projectId.toString());
+  }
+
+  return customFetch<ImportResult>(getImportStudioOneUrl(), {
+    ...options,
+    method: "POST",
+    body: formData,
+  });
+};
+
+export const getImportStudioOneMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof importStudioOne>>,
+    TError,
+    { data: BodyType<ImportStudioOneBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof importStudioOne>>,
+  TError,
+  { data: BodyType<ImportStudioOneBody> },
+  TContext
+> => {
+  const mutationKey = ["importStudioOne"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof importStudioOne>>,
+    { data: BodyType<ImportStudioOneBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return importStudioOne(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ImportStudioOneMutationResult = NonNullable<
+  Awaited<ReturnType<typeof importStudioOne>>
+>;
+export type ImportStudioOneMutationBody = BodyType<ImportStudioOneBody>;
+export type ImportStudioOneMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Import a Studio One .song project file
+ */
+export const useImportStudioOne = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof importStudioOne>>,
+    TError,
+    { data: BodyType<ImportStudioOneBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof importStudioOne>>,
+  TError,
+  { data: BodyType<ImportStudioOneBody> },
+  TContext
+> => {
+  return useMutation(getImportStudioOneMutationOptions(options));
+};
