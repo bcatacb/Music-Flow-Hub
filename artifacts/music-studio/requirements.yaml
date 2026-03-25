@@ -1,0 +1,18 @@
+packages:
+  "framer-motion": "For sleek, studio-grade page transitions and micro-interactions"
+  "recharts": "For the analytics dashboard and streaming data visualization"
+  "date-fns": "For formatting release dates and creation timestamps"
+  "react-hook-form": "For robust entity creation forms"
+  "@hookform/resolvers": "For Zod schema validation in forms"
+
+images:
+  - path: "artifacts/music-studio/public/images/studio-bg.png"
+    description: "Abstract, dark, moody recording studio atmosphere with subtle neon purple and blue lighting, blurred background, sleek equipment silhouettes"
+    aspect_ratio: "16:9"
+  - path: "artifacts/music-studio/public/images/album-placeholder.png"
+    description: "Minimalist, sleek, dark abstract geometric art suitable for a modern electronic music album cover"
+    aspect_ratio: "1:1"
+
+notes:
+  - "App assumes dark mode by default for a professional studio aesthetic."
+  - "All API hooks imported from @workspace/api-client-react as per monorepo structure."

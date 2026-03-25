@@ -1,22 +1,33 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Music Studio Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: projects
+    description: Music projects
+  - name: lyrics
+    description: Lyric documents
+  - name: instrumentals
+    description: Instrumental tracks
+  - name: songs
+    description: Songs (lyrics + instrumental combined)
+  - name: releases
+    description: Release plans
+  - name: analytics
+    description: Play/stream analytics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +35,1157 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Projects ────────────────────────────────────────────────────────────────
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List all projects
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create a project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProject"
+      responses:
+        "201":
+          description: Created project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/{projectId}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get a project
+      parameters:
+        - $ref: "#/components/parameters/projectId"
+      responses:
+        "200":
+          description: Project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Not found
+    put:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update a project
+      parameters:
+        - $ref: "#/components/parameters/projectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProject"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete a project
+      parameters:
+        - $ref: "#/components/parameters/projectId"
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Lyrics ──────────────────────────────────────────────────────────────────
+  /lyrics:
+    get:
+      operationId: listLyrics
+      tags: [lyrics]
+      summary: List all lyrics
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of lyrics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lyric"
+    post:
+      operationId: createLyric
+      tags: [lyrics]
+      summary: Create a lyric
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLyric"
+      responses:
+        "201":
+          description: Created lyric
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lyric"
+
+  /lyrics/{lyricId}:
+    get:
+      operationId: getLyric
+      tags: [lyrics]
+      summary: Get a lyric
+      parameters:
+        - $ref: "#/components/parameters/lyricId"
+      responses:
+        "200":
+          description: Lyric
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lyric"
+        "404":
+          description: Not found
+    put:
+      operationId: updateLyric
+      tags: [lyrics]
+      summary: Update a lyric
+      parameters:
+        - $ref: "#/components/parameters/lyricId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLyric"
+      responses:
+        "200":
+          description: Updated lyric
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lyric"
+    delete:
+      operationId: deleteLyric
+      tags: [lyrics]
+      summary: Delete a lyric
+      parameters:
+        - $ref: "#/components/parameters/lyricId"
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Instrumentals ───────────────────────────────────────────────────────────
+  /instrumentals:
+    get:
+      operationId: listInstrumentals
+      tags: [instrumentals]
+      summary: List all instrumentals
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of instrumentals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Instrumental"
+    post:
+      operationId: createInstrumental
+      tags: [instrumentals]
+      summary: Create an instrumental
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateInstrumental"
+      responses:
+        "201":
+          description: Created instrumental
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Instrumental"
+
+  /instrumentals/{instrumentalId}:
+    get:
+      operationId: getInstrumental
+      tags: [instrumentals]
+      summary: Get an instrumental
+      parameters:
+        - $ref: "#/components/parameters/instrumentalId"
+      responses:
+        "200":
+          description: Instrumental
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Instrumental"
+        "404":
+          description: Not found
+    put:
+      operationId: updateInstrumental
+      tags: [instrumentals]
+      summary: Update an instrumental
+      parameters:
+        - $ref: "#/components/parameters/instrumentalId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateInstrumental"
+      responses:
+        "200":
+          description: Updated instrumental
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Instrumental"
+    delete:
+      operationId: deleteInstrumental
+      tags: [instrumentals]
+      summary: Delete an instrumental
+      parameters:
+        - $ref: "#/components/parameters/instrumentalId"
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Songs ───────────────────────────────────────────────────────────────────
+  /songs:
+    get:
+      operationId: listSongs
+      tags: [songs]
+      summary: List all songs
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of songs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Song"
+    post:
+      operationId: createSong
+      tags: [songs]
+      summary: Create a song (link lyric + instrumental)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSong"
+      responses:
+        "201":
+          description: Created song
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+
+  /songs/{songId}:
+    get:
+      operationId: getSong
+      tags: [songs]
+      summary: Get a song
+      parameters:
+        - $ref: "#/components/parameters/songId"
+      responses:
+        "200":
+          description: Song
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+        "404":
+          description: Not found
+    put:
+      operationId: updateSong
+      tags: [songs]
+      summary: Update a song
+      parameters:
+        - $ref: "#/components/parameters/songId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSong"
+      responses:
+        "200":
+          description: Updated song
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+    delete:
+      operationId: deleteSong
+      tags: [songs]
+      summary: Delete a song
+      parameters:
+        - $ref: "#/components/parameters/songId"
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Releases ────────────────────────────────────────────────────────────────
+  /releases:
+    get:
+      operationId: listReleases
+      tags: [releases]
+      summary: List all releases
+      responses:
+        "200":
+          description: List of releases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Release"
+    post:
+      operationId: createRelease
+      tags: [releases]
+      summary: Create a release
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRelease"
+      responses:
+        "201":
+          description: Created release
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Release"
+
+  /releases/{releaseId}:
+    get:
+      operationId: getRelease
+      tags: [releases]
+      summary: Get a release
+      parameters:
+        - $ref: "#/components/parameters/releaseId"
+      responses:
+        "200":
+          description: Release
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Release"
+        "404":
+          description: Not found
+    put:
+      operationId: updateRelease
+      tags: [releases]
+      summary: Update a release
+      parameters:
+        - $ref: "#/components/parameters/releaseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRelease"
+      responses:
+        "200":
+          description: Updated release
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Release"
+    delete:
+      operationId: deleteRelease
+      tags: [releases]
+      summary: Delete a release
+      parameters:
+        - $ref: "#/components/parameters/releaseId"
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Analytics ───────────────────────────────────────────────────────────────
+  /analytics:
+    get:
+      operationId: listAnalytics
+      tags: [analytics]
+      summary: Get analytics entries
+      parameters:
+        - name: songId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Analytics list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnalyticsEntry"
+    post:
+      operationId: createAnalyticsEntry
+      tags: [analytics]
+      summary: Record an analytics entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAnalyticsEntry"
+      responses:
+        "201":
+          description: Created entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsEntry"
+
+  /analytics/summary:
+    get:
+      operationId: getAnalyticsSummary
+      tags: [analytics]
+      summary: Get analytics summary (totals per song)
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnalyticsSummary"
+
 components:
+  parameters:
+    projectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+    lyricId:
+      name: lyricId
+      in: path
+      required: true
+      schema:
+        type: integer
+    instrumentalId:
+      name: instrumentalId
+      in: path
+      required: true
+      schema:
+        type: integer
+    songId:
+      name: songId
+      in: path
+      required: true
+      schema:
+        type: integer
+    releaseId:
+      name: releaseId
+      in: path
+      required: true
+      schema:
+        type: integer
+
   schemas:
     HealthStatus:
       type: object
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    # ─── Project ───────────────────────────────────────────────────────────────
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [planning, in_progress, completed, archived]
+        coverImageUrl:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, name, status, createdAt, updatedAt]
+
+    CreateProject:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [planning, in_progress, completed, archived]
+          default: planning
+        coverImageUrl:
+          type: string
+          nullable: true
+      required: [name]
+
+    UpdateProject:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [planning, in_progress, completed, archived]
+        coverImageUrl:
+          type: string
+          nullable: true
+
+    # ─── Lyric ─────────────────────────────────────────────────────────────────
+    Lyric:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        content:
+          type: string
+        mood:
+          type: string
+          nullable: true
+        theme:
+          type: string
+          nullable: true
+        language:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [draft, in_progress, complete]
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, title, content, status, createdAt, updatedAt]
+
+    CreateLyric:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        content:
+          type: string
+        mood:
+          type: string
+          nullable: true
+        theme:
+          type: string
+          nullable: true
+        language:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [draft, in_progress, complete]
+          default: draft
+        notes:
+          type: string
+          nullable: true
+      required: [title, content]
+
+    UpdateLyric:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        content:
+          type: string
+        mood:
+          type: string
+          nullable: true
+        theme:
+          type: string
+          nullable: true
+        language:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [draft, in_progress, complete]
+        notes:
+          type: string
+          nullable: true
+
+    # ─── Instrumental ──────────────────────────────────────────────────────────
+    Instrumental:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        producer:
+          type: string
+          nullable: true
+        bpm:
+          type: integer
+          nullable: true
+        musicalKey:
+          type: string
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        mood:
+          type: string
+          nullable: true
+        durationSeconds:
+          type: integer
+          nullable: true
+        fileUrl:
+          type: string
+          nullable: true
+        licenseType:
+          type: string
+          enum: [exclusive, non_exclusive, lease, free]
+          nullable: true
+        status:
+          type: string
+          enum: [available, in_use, archived]
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, title, status, createdAt, updatedAt]
+
+    CreateInstrumental:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        producer:
+          type: string
+          nullable: true
+        bpm:
+          type: integer
+          nullable: true
+        musicalKey:
+          type: string
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        mood:
+          type: string
+          nullable: true
+        durationSeconds:
+          type: integer
+          nullable: true
+        fileUrl:
+          type: string
+          nullable: true
+        licenseType:
+          type: string
+          enum: [exclusive, non_exclusive, lease, free]
+          nullable: true
+        status:
+          type: string
+          enum: [available, in_use, archived]
+          default: available
+        notes:
+          type: string
+          nullable: true
+      required: [title]
+
+    UpdateInstrumental:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        producer:
+          type: string
+          nullable: true
+        bpm:
+          type: integer
+          nullable: true
+        musicalKey:
+          type: string
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        mood:
+          type: string
+          nullable: true
+        durationSeconds:
+          type: integer
+          nullable: true
+        fileUrl:
+          type: string
+          nullable: true
+        licenseType:
+          type: string
+          enum: [exclusive, non_exclusive, lease, free]
+          nullable: true
+        status:
+          type: string
+          enum: [available, in_use, archived]
+        notes:
+          type: string
+          nullable: true
+
+    # ─── Song ──────────────────────────────────────────────────────────────────
+    Song:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+          nullable: true
+        lyricId:
+          type: integer
+          nullable: true
+        instrumentalId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        artistName:
+          type: string
+          nullable: true
+        featuredArtists:
+          type: string
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        mood:
+          type: string
+          nullable: true
+        bpm:
+          type: integer
+          nullable: true
+        musicalKey:
+          type: string
+          nullable: true
+        durationSeconds:
+          type: integer
+          nullable: true
+        isrc:
+          type: string
+          nullable: true
+        upc:
+          type: string
+          nullable: true
+        copyright:
+          type: string
+          nullable: true
+        recordLabel:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [idea, writing, recording, mixing, mastering, ready, released]
+        coverImageUrl:
+          type: string
+          nullable: true
+        fileUrl:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, title, status, createdAt, updatedAt]
+
+    CreateSong:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          nullable: true
+        lyricId:
+          type: integer
+          nullable: true
+        instrumentalId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        artistName:
+          type: string
+          nullable: true
+        featuredArtists:
+          type: string
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        mood:
+          type: string
+          nullable: true
+        bpm:
+          type: integer
+          nullable: true
+        musicalKey:
+          type: string
+          nullable: true
+        durationSeconds:
+          type: integer
+          nullable: true
+        isrc:
+          type: string
+          nullable: true
+        upc:
+          type: string
+          nullable: true
+        copyright:
+          type: string
+          nullable: true
+        recordLabel:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [idea, writing, recording, mixing, mastering, ready, released]
+          default: idea
+        coverImageUrl:
+          type: string
+          nullable: true
+        fileUrl:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required: [title]
+
+    UpdateSong:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          nullable: true
+        lyricId:
+          type: integer
+          nullable: true
+        instrumentalId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        artistName:
+          type: string
+          nullable: true
+        featuredArtists:
+          type: string
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        mood:
+          type: string
+          nullable: true
+        bpm:
+          type: integer
+          nullable: true
+        musicalKey:
+          type: string
+          nullable: true
+        durationSeconds:
+          type: integer
+          nullable: true
+        isrc:
+          type: string
+          nullable: true
+        upc:
+          type: string
+          nullable: true
+        copyright:
+          type: string
+          nullable: true
+        recordLabel:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [idea, writing, recording, mixing, mastering, ready, released]
+        coverImageUrl:
+          type: string
+          nullable: true
+        fileUrl:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+
+    # ─── Release ───────────────────────────────────────────────────────────────
+    Release:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        releaseType:
+          type: string
+          enum: [single, ep, album, mixtape]
+        status:
+          type: string
+          enum: [planning, pre_release, released, cancelled]
+        releaseDate:
+          type: string
+          format: date
+          nullable: true
+        platforms:
+          type: string
+          nullable: true
+        distributorName:
+          type: string
+          nullable: true
+        upc:
+          type: string
+          nullable: true
+        coverImageUrl:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, title, releaseType, status, createdAt, updatedAt]
+
+    CreateRelease:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        releaseType:
+          type: string
+          enum: [single, ep, album, mixtape]
+          default: single
+        status:
+          type: string
+          enum: [planning, pre_release, released, cancelled]
+          default: planning
+        releaseDate:
+          type: string
+          format: date
+          nullable: true
+        platforms:
+          type: string
+          nullable: true
+        distributorName:
+          type: string
+          nullable: true
+        upc:
+          type: string
+          nullable: true
+        coverImageUrl:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required: [title, releaseType]
+
+    UpdateRelease:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        releaseType:
+          type: string
+          enum: [single, ep, album, mixtape]
+        status:
+          type: string
+          enum: [planning, pre_release, released, cancelled]
+        releaseDate:
+          type: string
+          format: date
+          nullable: true
+        platforms:
+          type: string
+          nullable: true
+        distributorName:
+          type: string
+          nullable: true
+        upc:
+          type: string
+          nullable: true
+        coverImageUrl:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+
+    # ─── Analytics ─────────────────────────────────────────────────────────────
+    AnalyticsEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        songId:
+          type: integer
+        platform:
+          type: string
+        streams:
+          type: integer
+        downloads:
+          type: integer
+        likes:
+          type: integer
+        recordedDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, songId, platform, streams, downloads, likes, recordedDate, createdAt]
+
+    CreateAnalyticsEntry:
+      type: object
+      properties:
+        songId:
+          type: integer
+        platform:
+          type: string
+        streams:
+          type: integer
+          default: 0
+        downloads:
+          type: integer
+          default: 0
+        likes:
+          type: integer
+          default: 0
+        recordedDate:
+          type: string
+          format: date
+      required: [songId, platform, recordedDate]
+
+    AnalyticsSummary:
+      type: object
+      properties:
+        songId:
+          type: integer
+        songTitle:
+          type: string
+        totalStreams:
+          type: integer
+        totalDownloads:
+          type: integer
+        totalLikes:
+          type: integer
+      required: [songId, songTitle, totalStreams, totalDownloads, totalLikes]

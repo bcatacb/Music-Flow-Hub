@@ -4,6 +4,29 @@
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
+## Application
+
+**SonicStudio** — A full-stack music production management platform for artists, producers, and creators.
+
+### Features
+- **Projects**: Top-level containers for organizing all creative work
+- **Lyrics**: Write and manage lyric documents independently (title, content, mood, theme, language, status)
+- **Instrumentals**: Track beats and instrumental metadata (BPM, key, genre, license type, file URL)
+- **Songs**: Combine lyrics + instrumentals into songs with full metadata (ISRC, UPC, featured artists, record label, production stage)
+- **Releases**: Plan and track releases (single/EP/album/mixtape) with release dates, platforms, distributor info
+- **Analytics**: Log and track streams/downloads/likes per song and platform; bar chart summary visualization
+
+### Frontend
+- React + Vite artifact at `/` (`artifacts/music-studio`)
+- Dark mode professional studio aesthetic with electric violet primary
+- Framer Motion page transitions, Recharts for analytics
+- Sidebar navigation with 7 sections
+
+### Backend
+- Express 5 API at `/api` (`artifacts/api-server`)
+- All routes: projects, lyrics, instrumentals, songs, releases, analytics + summary
+- PostgreSQL via Drizzle ORM with full schema migrations
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces
