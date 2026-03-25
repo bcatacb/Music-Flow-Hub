@@ -3,7 +3,7 @@ import multer from "multer";
 import * as mm from "music-metadata";
 import JSZip from "jszip";
 import { db } from "@workspace/db";
-import { instrumentalsTable, lyricsTable, songsTable } from "@workspace/db/schema";
+import { instrumentalsTable, lyricsTable, songsTable, stemsTable } from "@workspace/db/schema";
 
 const router: IRouter = Router();
 
@@ -229,6 +229,103 @@ router.post("/import/studio-one", upload.array("files"), async (req, res) => {
 
   res.json({ total: files.length, succeeded, failed, items });
 });
+
+// ─── Import Stems (audio files linked to a song) ───────────────────────────
+router.post("/import/stems", upload.array("files"), async (req, res) => {
+  const files = req.files as Express.Multer.File[];
+  const songId = req.body.songId ? parseInt(req.body.songId) : undefined;
+  const stemType = req.body.stemType || "other";
+
+  if (!files || files.length === 0) {
+    return res.status(400).json({ error: "No files uploaded" });
+  }
+
+  const items: any[] = [];
+  let succeeded = 0;
+  let failed = 0;
+
+  for (const file of files) {
+    const ext = extOf(file.originalname);
+    if (!AUDIO_EXTENSIONS.has(ext)) {
+      items.push({ fileName: file.originalname, status: "skipped", message: `Unsupported format: ${ext}`, type: "stem" });
+      continue;
+    }
+
+    try {
+      const metadata = await mm.parseBuffer(file.buffer, { mimeType: file.mimetype });
+      const common = metadata.common;
+      const fmt = metadata.format;
+
+      const name = common.title || baseName(file.originalname);
+      const bpm = common.bpm ? Math.round(common.bpm) : undefined;
+      const durationSeconds = fmt.duration ? Math.round(fmt.duration) : undefined;
+      const musicalKey = (common as any).key || undefined;
+      const sampleRate = fmt.sampleRate ? Math.round(fmt.sampleRate) : undefined;
+      const bitDepth = fmt.bitsPerSample || undefined;
+      const channels = fmt.numberOfChannels || undefined;
+
+      // Infer format from extension
+      const formatMap: Record<string, string> = {
+        ".wav": "wav", ".mp3": "mp3", ".aiff": "aiff", ".aif": "aiff",
+        ".flac": "flac", ".m4a": "m4a", ".ogg": "ogg",
+      };
+      const format = formatMap[ext] || "other";
+
+      // Auto-detect stem type from filename if not explicitly provided
+      const resolvedType = inferStemType(file.originalname) || stemType;
+
+      const [stem] = await db
+        .insert(stemsTable)
+        .values({
+          name,
+          songId: songId || null,
+          stemType: resolvedType as any,
+          format: format as any,
+          bpm: bpm || null,
+          musicalKey: musicalKey || null,
+          durationSeconds: durationSeconds || null,
+          sampleRate: sampleRate || null,
+          bitDepth: bitDepth || null,
+          channels: channels || null,
+          notes: `Imported from ${file.originalname}`,
+        })
+        .returning();
+
+      items.push({ fileName: file.originalname, status: "success", type: "stem", id: stem.id, message: `Created stem: ${name} (${resolvedType})` });
+      succeeded++;
+    } catch (err: any) {
+      req.log.error({ err, file: file.originalname }, "Failed to import stem file");
+      items.push({ fileName: file.originalname, status: "error", type: "stem", message: err.message || "Parse error" });
+      failed++;
+    }
+  }
+
+  res.json({ total: files.length, succeeded, failed, items });
+});
+
+// ─── Auto-detect stem type from filename ───────────────────────────────────
+function inferStemType(filename: string): string | null {
+  const lower = filename.toLowerCase();
+  const patterns: [RegExp, string][] = [
+    [/drum|kick|snare|hihat|hat|perc|808/i, "drums"],
+    [/bass/i, "bass"],
+    [/lead.?voc|main.?voc|vox.?lead/i, "lead_vocals"],
+    [/back.?voc|harm|choir|bv\b|bg.?voc/i, "backing_vocals"],
+    [/vocal|vox|voice|acap/i, "vocals"],
+    [/guitar|gtr/i, "guitars"],
+    [/key|piano|organ|clav/i, "keys"],
+    [/synth|pad|arp|lead(?!.?voc)/i, "synth"],
+    [/string|violin|cello|orch/i, "strings"],
+    [/brass|horn|trumpet|sax/i, "brass"],
+    [/fx|effect|sfx|foley|atmos|amb/i, "fx"],
+    [/full.?mix|master|mixdown|final/i, "full_mix"],
+    [/inst(rumental)?(?!.?mix)/i, "instrumental_mix"],
+  ];
+  for (const [re, type] of patterns) {
+    if (re.test(lower)) return type;
+  }
+  return null;
+}
 
 // ─── Studio One XML Parser ──────────────────────────────────────────────────
 function parseStudioOneSongXml(xml: string): Record<string, string> | null {

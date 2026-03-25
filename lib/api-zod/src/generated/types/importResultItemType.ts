@@ -13,4 +13,5 @@ export const ImportResultItemType = {
   instrumental: "instrumental",
   lyric: "lyric",
   song: "song",
+  stem: "stem",
 } as const;

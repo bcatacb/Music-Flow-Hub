@@ -25,20 +25,24 @@ import type {
   CreateProject,
   CreateRelease,
   CreateSong,
+  CreateStem,
   HealthStatus,
   ImportInstrumentalsBody,
   ImportLyricsBody,
   ImportResult,
+  ImportStemsBody,
   ImportStudioOneBody,
   Instrumental,
   ListAnalyticsParams,
   ListInstrumentalsParams,
   ListLyricsParams,
   ListSongsParams,
+  ListStemsParams,
   Lyric,
   Project,
   Release,
   Song,
+  Stem,
   UpdateInstrumental,
   UpdateLyric,
   UpdateProject,
@@ -2810,4 +2814,528 @@ export const useImportStudioOne = <
   TContext
 > => {
   return useMutation(getImportStudioOneMutationOptions(options));
+};
+
+/**
+ * @summary Bulk import stem audio files
+ */
+export const getImportStemsUrl = () => {
+  return `/api/import/stems`;
+};
+
+export const importStems = async (
+  importStemsBody: ImportStemsBody,
+  options?: RequestInit,
+): Promise<ImportResult> => {
+  const formData = new FormData();
+  if (importStemsBody.files !== undefined) {
+    importStemsBody.files.forEach((value) => formData.append(`files`, value));
+  }
+  if (importStemsBody.songId !== undefined) {
+    formData.append(`songId`, importStemsBody.songId.toString());
+  }
+  if (importStemsBody.stemType !== undefined) {
+    formData.append(`stemType`, importStemsBody.stemType);
+  }
+
+  return customFetch<ImportResult>(getImportStemsUrl(), {
+    ...options,
+    method: "POST",
+    body: formData,
+  });
+};
+
+export const getImportStemsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof importStems>>,
+    TError,
+    { data: BodyType<ImportStemsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof importStems>>,
+  TError,
+  { data: BodyType<ImportStemsBody> },
+  TContext
+> => {
+  const mutationKey = ["importStems"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof importStems>>,
+    { data: BodyType<ImportStemsBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return importStems(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ImportStemsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof importStems>>
+>;
+export type ImportStemsMutationBody = BodyType<ImportStemsBody>;
+export type ImportStemsMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Bulk import stem audio files
+ */
+export const useImportStems = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof importStems>>,
+    TError,
+    { data: BodyType<ImportStemsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof importStems>>,
+  TError,
+  { data: BodyType<ImportStemsBody> },
+  TContext
+> => {
+  return useMutation(getImportStemsMutationOptions(options));
+};
+
+/**
+ * @summary List all stems
+ */
+export const getListStemsUrl = (params?: ListStemsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/stems?${stringifiedParams}`
+    : `/api/stems`;
+};
+
+export const listStems = async (
+  params?: ListStemsParams,
+  options?: RequestInit,
+): Promise<Stem[]> => {
+  return customFetch<Stem[]>(getListStemsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListStemsQueryKey = (params?: ListStemsParams) => {
+  return [`/api/stems`, ...(params ? [params] : [])] as const;
+};
+
+export const getListStemsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listStems>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListStemsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listStems>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListStemsQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listStems>>> = ({
+    signal,
+  }) => listStems(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listStems>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListStemsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listStems>>
+>;
+export type ListStemsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all stems
+ */
+
+export function useListStems<
+  TData = Awaited<ReturnType<typeof listStems>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListStemsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listStems>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListStemsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a stem
+ */
+export const getCreateStemUrl = () => {
+  return `/api/stems`;
+};
+
+export const createStem = async (
+  createStem: CreateStem,
+  options?: RequestInit,
+): Promise<Stem> => {
+  return customFetch<Stem>(getCreateStemUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createStem),
+  });
+};
+
+export const getCreateStemMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createStem>>,
+    TError,
+    { data: BodyType<CreateStem> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createStem>>,
+  TError,
+  { data: BodyType<CreateStem> },
+  TContext
+> => {
+  const mutationKey = ["createStem"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createStem>>,
+    { data: BodyType<CreateStem> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createStem(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateStemMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createStem>>
+>;
+export type CreateStemMutationBody = BodyType<CreateStem>;
+export type CreateStemMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a stem
+ */
+export const useCreateStem = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createStem>>,
+    TError,
+    { data: BodyType<CreateStem> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createStem>>,
+  TError,
+  { data: BodyType<CreateStem> },
+  TContext
+> => {
+  return useMutation(getCreateStemMutationOptions(options));
+};
+
+/**
+ * @summary Get a stem by ID
+ */
+export const getGetStemUrl = (stemId: number) => {
+  return `/api/stems/${stemId}`;
+};
+
+export const getStem = async (
+  stemId: number,
+  options?: RequestInit,
+): Promise<Stem> => {
+  return customFetch<Stem>(getGetStemUrl(stemId), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetStemQueryKey = (stemId: number) => {
+  return [`/api/stems/${stemId}`] as const;
+};
+
+export const getGetStemQueryOptions = <
+  TData = Awaited<ReturnType<typeof getStem>>,
+  TError = ErrorType<void>,
+>(
+  stemId: number,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getStem>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetStemQueryKey(stemId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getStem>>> = ({
+    signal,
+  }) => getStem(stemId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!stemId,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof getStem>>, TError, TData> & {
+    queryKey: QueryKey;
+  };
+};
+
+export type GetStemQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getStem>>
+>;
+export type GetStemQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a stem by ID
+ */
+
+export function useGetStem<
+  TData = Awaited<ReturnType<typeof getStem>>,
+  TError = ErrorType<void>,
+>(
+  stemId: number,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getStem>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetStemQueryOptions(stemId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update a stem
+ */
+export const getUpdateStemUrl = (stemId: number) => {
+  return `/api/stems/${stemId}`;
+};
+
+export const updateStem = async (
+  stemId: number,
+  createStem: CreateStem,
+  options?: RequestInit,
+): Promise<Stem> => {
+  return customFetch<Stem>(getUpdateStemUrl(stemId), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createStem),
+  });
+};
+
+export const getUpdateStemMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateStem>>,
+    TError,
+    { stemId: number; data: BodyType<CreateStem> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateStem>>,
+  TError,
+  { stemId: number; data: BodyType<CreateStem> },
+  TContext
+> => {
+  const mutationKey = ["updateStem"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateStem>>,
+    { stemId: number; data: BodyType<CreateStem> }
+  > = (props) => {
+    const { stemId, data } = props ?? {};
+
+    return updateStem(stemId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateStemMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateStem>>
+>;
+export type UpdateStemMutationBody = BodyType<CreateStem>;
+export type UpdateStemMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a stem
+ */
+export const useUpdateStem = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateStem>>,
+    TError,
+    { stemId: number; data: BodyType<CreateStem> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateStem>>,
+  TError,
+  { stemId: number; data: BodyType<CreateStem> },
+  TContext
+> => {
+  return useMutation(getUpdateStemMutationOptions(options));
+};
+
+/**
+ * @summary Delete a stem
+ */
+export const getDeleteStemUrl = (stemId: number) => {
+  return `/api/stems/${stemId}`;
+};
+
+export const deleteStem = async (
+  stemId: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteStemUrl(stemId), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteStemMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteStem>>,
+    TError,
+    { stemId: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteStem>>,
+  TError,
+  { stemId: number },
+  TContext
+> => {
+  const mutationKey = ["deleteStem"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteStem>>,
+    { stemId: number }
+  > = (props) => {
+    const { stemId } = props ?? {};
+
+    return deleteStem(stemId, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteStemMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteStem>>
+>;
+
+export type DeleteStemMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a stem
+ */
+export const useDeleteStem = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteStem>>,
+    TError,
+    { stemId: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteStem>>,
+  TError,
+  { stemId: number },
+  TContext
+> => {
+  return useMutation(getDeleteStemMutationOptions(options));
 };

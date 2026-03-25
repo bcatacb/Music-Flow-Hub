@@ -704,7 +704,7 @@ export const ImportInstrumentalsResponse = zod.object({
       status: zod.enum(["success", "error", "skipped"]),
       message: zod.string().nullish(),
       id: zod.number().nullish(),
-      type: zod.enum(["instrumental", "lyric", "song"]),
+      type: zod.enum(["instrumental", "lyric", "song", "stem"]),
     }),
   ),
 });
@@ -727,7 +727,7 @@ export const ImportLyricsResponse = zod.object({
       status: zod.enum(["success", "error", "skipped"]),
       message: zod.string().nullish(),
       id: zod.number().nullish(),
-      type: zod.enum(["instrumental", "lyric", "song"]),
+      type: zod.enum(["instrumental", "lyric", "song", "stem"]),
     }),
   ),
 });
@@ -750,7 +750,235 @@ export const ImportStudioOneResponse = zod.object({
       status: zod.enum(["success", "error", "skipped"]),
       message: zod.string().nullish(),
       id: zod.number().nullish(),
-      type: zod.enum(["instrumental", "lyric", "song"]),
+      type: zod.enum(["instrumental", "lyric", "song", "stem"]),
     }),
   ),
+});
+
+/**
+ * @summary Bulk import stem audio files
+ */
+export const ImportStemsBody = zod.object({
+  files: zod.array(zod.instanceof(File)).optional(),
+  songId: zod.number().optional(),
+  stemType: zod.string().optional(),
+});
+
+export const ImportStemsResponse = zod.object({
+  total: zod.number(),
+  succeeded: zod.number(),
+  failed: zod.number(),
+  items: zod.array(
+    zod.object({
+      fileName: zod.string(),
+      status: zod.enum(["success", "error", "skipped"]),
+      message: zod.string().nullish(),
+      id: zod.number().nullish(),
+      type: zod.enum(["instrumental", "lyric", "song", "stem"]),
+    }),
+  ),
+});
+
+/**
+ * @summary List all stems
+ */
+export const ListStemsQueryParams = zod.object({
+  songId: zod.coerce.number().optional(),
+});
+
+export const ListStemsResponseItem = zod.object({
+  id: zod.number(),
+  songId: zod.number().nullish(),
+  name: zod.string(),
+  stemType: zod.enum([
+    "drums",
+    "bass",
+    "vocals",
+    "lead_vocals",
+    "backing_vocals",
+    "guitars",
+    "keys",
+    "synth",
+    "strings",
+    "brass",
+    "fx",
+    "full_mix",
+    "instrumental_mix",
+    "acapella",
+    "other",
+  ]),
+  format: zod.enum(["wav", "mp3", "aiff", "flac", "m4a", "ogg", "other"]),
+  fileUrl: zod.string().nullish(),
+  durationSeconds: zod.number().nullish(),
+  sampleRate: zod.number().nullish(),
+  bitDepth: zod.number().nullish(),
+  channels: zod.number().nullish(),
+  bpm: zod.number().nullish(),
+  musicalKey: zod.string().nullish(),
+  notes: zod.string().nullish(),
+  createdAt: zod.date(),
+  updatedAt: zod.date(),
+});
+export const ListStemsResponse = zod.array(ListStemsResponseItem);
+
+/**
+ * @summary Create a stem
+ */
+export const CreateStemBody = zod.object({
+  songId: zod.number().nullish(),
+  name: zod.string(),
+  stemType: zod
+    .enum([
+      "drums",
+      "bass",
+      "vocals",
+      "lead_vocals",
+      "backing_vocals",
+      "guitars",
+      "keys",
+      "synth",
+      "strings",
+      "brass",
+      "fx",
+      "full_mix",
+      "instrumental_mix",
+      "acapella",
+      "other",
+    ])
+    .optional(),
+  format: zod
+    .enum(["wav", "mp3", "aiff", "flac", "m4a", "ogg", "other"])
+    .optional(),
+  fileUrl: zod.string().nullish(),
+  durationSeconds: zod.number().nullish(),
+  sampleRate: zod.number().nullish(),
+  bitDepth: zod.number().nullish(),
+  channels: zod.number().nullish(),
+  bpm: zod.number().nullish(),
+  musicalKey: zod.string().nullish(),
+  notes: zod.string().nullish(),
+});
+
+/**
+ * @summary Get a stem by ID
+ */
+export const GetStemParams = zod.object({
+  stemId: zod.coerce.number(),
+});
+
+export const GetStemResponse = zod.object({
+  id: zod.number(),
+  songId: zod.number().nullish(),
+  name: zod.string(),
+  stemType: zod.enum([
+    "drums",
+    "bass",
+    "vocals",
+    "lead_vocals",
+    "backing_vocals",
+    "guitars",
+    "keys",
+    "synth",
+    "strings",
+    "brass",
+    "fx",
+    "full_mix",
+    "instrumental_mix",
+    "acapella",
+    "other",
+  ]),
+  format: zod.enum(["wav", "mp3", "aiff", "flac", "m4a", "ogg", "other"]),
+  fileUrl: zod.string().nullish(),
+  durationSeconds: zod.number().nullish(),
+  sampleRate: zod.number().nullish(),
+  bitDepth: zod.number().nullish(),
+  channels: zod.number().nullish(),
+  bpm: zod.number().nullish(),
+  musicalKey: zod.string().nullish(),
+  notes: zod.string().nullish(),
+  createdAt: zod.date(),
+  updatedAt: zod.date(),
+});
+
+/**
+ * @summary Update a stem
+ */
+export const UpdateStemParams = zod.object({
+  stemId: zod.coerce.number(),
+});
+
+export const UpdateStemBody = zod.object({
+  songId: zod.number().nullish(),
+  name: zod.string(),
+  stemType: zod
+    .enum([
+      "drums",
+      "bass",
+      "vocals",
+      "lead_vocals",
+      "backing_vocals",
+      "guitars",
+      "keys",
+      "synth",
+      "strings",
+      "brass",
+      "fx",
+      "full_mix",
+      "instrumental_mix",
+      "acapella",
+      "other",
+    ])
+    .optional(),
+  format: zod
+    .enum(["wav", "mp3", "aiff", "flac", "m4a", "ogg", "other"])
+    .optional(),
+  fileUrl: zod.string().nullish(),
+  durationSeconds: zod.number().nullish(),
+  sampleRate: zod.number().nullish(),
+  bitDepth: zod.number().nullish(),
+  channels: zod.number().nullish(),
+  bpm: zod.number().nullish(),
+  musicalKey: zod.string().nullish(),
+  notes: zod.string().nullish(),
+});
+
+export const UpdateStemResponse = zod.object({
+  id: zod.number(),
+  songId: zod.number().nullish(),
+  name: zod.string(),
+  stemType: zod.enum([
+    "drums",
+    "bass",
+    "vocals",
+    "lead_vocals",
+    "backing_vocals",
+    "guitars",
+    "keys",
+    "synth",
+    "strings",
+    "brass",
+    "fx",
+    "full_mix",
+    "instrumental_mix",
+    "acapella",
+    "other",
+  ]),
+  format: zod.enum(["wav", "mp3", "aiff", "flac", "m4a", "ogg", "other"]),
+  fileUrl: zod.string().nullish(),
+  durationSeconds: zod.number().nullish(),
+  sampleRate: zod.number().nullish(),
+  bitDepth: zod.number().nullish(),
+  channels: zod.number().nullish(),
+  bpm: zod.number().nullish(),
+  musicalKey: zod.string().nullish(),
+  notes: zod.string().nullish(),
+  createdAt: zod.date(),
+  updatedAt: zod.date(),
+});
+
+/**
+ * @summary Delete a stem
+ */
+export const DeleteStemParams = zod.object({
+  stemId: zod.coerce.number(),
 });

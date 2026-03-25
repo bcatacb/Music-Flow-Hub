@@ -487,6 +487,7 @@ export const ImportResultItemType = {
   instrumental: "instrumental",
   lyric: "lyric",
   song: "song",
+  stem: "stem",
 } as const;
 
 export interface ImportResultItem {
@@ -502,6 +503,105 @@ export interface ImportResult {
   succeeded: number;
   failed: number;
   items: ImportResultItem[];
+}
+
+export type StemStemType = (typeof StemStemType)[keyof typeof StemStemType];
+
+export const StemStemType = {
+  drums: "drums",
+  bass: "bass",
+  vocals: "vocals",
+  lead_vocals: "lead_vocals",
+  backing_vocals: "backing_vocals",
+  guitars: "guitars",
+  keys: "keys",
+  synth: "synth",
+  strings: "strings",
+  brass: "brass",
+  fx: "fx",
+  full_mix: "full_mix",
+  instrumental_mix: "instrumental_mix",
+  acapella: "acapella",
+  other: "other",
+} as const;
+
+export type StemFormat = (typeof StemFormat)[keyof typeof StemFormat];
+
+export const StemFormat = {
+  wav: "wav",
+  mp3: "mp3",
+  aiff: "aiff",
+  flac: "flac",
+  m4a: "m4a",
+  ogg: "ogg",
+  other: "other",
+} as const;
+
+export interface Stem {
+  id: number;
+  songId?: number | null;
+  name: string;
+  stemType: StemStemType;
+  format: StemFormat;
+  fileUrl?: string | null;
+  durationSeconds?: number | null;
+  sampleRate?: number | null;
+  bitDepth?: number | null;
+  channels?: number | null;
+  bpm?: number | null;
+  musicalKey?: string | null;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CreateStemStemType =
+  (typeof CreateStemStemType)[keyof typeof CreateStemStemType];
+
+export const CreateStemStemType = {
+  drums: "drums",
+  bass: "bass",
+  vocals: "vocals",
+  lead_vocals: "lead_vocals",
+  backing_vocals: "backing_vocals",
+  guitars: "guitars",
+  keys: "keys",
+  synth: "synth",
+  strings: "strings",
+  brass: "brass",
+  fx: "fx",
+  full_mix: "full_mix",
+  instrumental_mix: "instrumental_mix",
+  acapella: "acapella",
+  other: "other",
+} as const;
+
+export type CreateStemFormat =
+  (typeof CreateStemFormat)[keyof typeof CreateStemFormat];
+
+export const CreateStemFormat = {
+  wav: "wav",
+  mp3: "mp3",
+  aiff: "aiff",
+  flac: "flac",
+  m4a: "m4a",
+  ogg: "ogg",
+  other: "other",
+} as const;
+
+export interface CreateStem {
+  songId?: number | null;
+  name: string;
+  stemType?: CreateStemStemType;
+  format?: CreateStemFormat;
+  fileUrl?: string | null;
+  durationSeconds?: number | null;
+  sampleRate?: number | null;
+  bitDepth?: number | null;
+  channels?: number | null;
+  bpm?: number | null;
+  musicalKey?: string | null;
+  notes?: string | null;
 }
 
 export type ListLyricsParams = {
@@ -533,4 +633,14 @@ export type ImportLyricsBody = {
 export type ImportStudioOneBody = {
   files?: Blob[];
   projectId?: number;
+};
+
+export type ImportStemsBody = {
+  files?: Blob[];
+  songId?: number;
+  stemType?: string;
+};
+
+export type ListStemsParams = {
+  songId?: number;
 };

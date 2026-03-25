@@ -7,6 +7,7 @@ import songsRouter from "./songs";
 import releasesRouter from "./releases";
 import analyticsRouter from "./analytics";
 import importRouter from "./import";
+import stemsRouter from "./stems";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(songsRouter);
 router.use(releasesRouter);
 router.use(analyticsRouter);
 router.use(importRouter);
+router.use(stemsRouter);
 
 export default router;
