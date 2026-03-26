@@ -210,10 +210,10 @@ export default function Instrumentals() {
               </div>
               <div className="space-y-1">
                 <Label>Project</Label>
-                <Select value={watch("projectId")} onValueChange={v => setValue("projectId", v)}>
+                <Select value={watch("projectId") || "__none__"} onValueChange={v => setValue("projectId", v === "__none__" ? "" : v)}>
                   <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {projects.map((p: any) => <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -243,10 +243,10 @@ export default function Instrumentals() {
               </div>
               <div className="space-y-1">
                 <Label>License Type</Label>
-                <Select value={watch("licenseType")} onValueChange={v => setValue("licenseType", v)}>
+                <Select value={watch("licenseType") || "__none__"} onValueChange={v => setValue("licenseType", v === "__none__" ? "" : v)}>
                   <SelectTrigger><SelectValue placeholder="Select license" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {LICENSE_TYPES.map(l => <SelectItem key={l} value={l}>{l.replace("_", " ")}</SelectItem>)}
                   </SelectContent>
                 </Select>

@@ -217,10 +217,10 @@ export default function Releases() {
               </div>
               <div className="space-y-1">
                 <Label>Project</Label>
-                <Select value={watch("projectId")} onValueChange={v => setValue("projectId", v)}>
+                <Select value={watch("projectId") || "__none__"} onValueChange={v => setValue("projectId", v === "__none__" ? "" : v)}>
                   <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {projects.map((p: any) => <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>)}
                   </SelectContent>
                 </Select>

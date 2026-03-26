@@ -285,12 +285,12 @@ export default function Import() {
       {/* Project selector */}
       <div className="flex items-center gap-3 p-4 bg-secondary/20 rounded-2xl border border-border max-w-sm">
         <Label className="shrink-0 text-sm font-medium">Link to project</Label>
-        <Select value={projectId} onValueChange={setProjectId}>
+        <Select value={projectId || "__none__"} onValueChange={v => setProjectId(v === "__none__" ? "" : v)}>
           <SelectTrigger className="flex-1">
             <SelectValue placeholder="None (import standalone)" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">None</SelectItem>
+            <SelectItem value="__none__">None</SelectItem>
             {projects.map((p: any) => (
               <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
             ))}
