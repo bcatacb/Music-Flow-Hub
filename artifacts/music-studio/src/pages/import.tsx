@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { useListProjects } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -177,6 +178,7 @@ function ImportSection({
   projectId,
   directory,
   tips,
+  invalidateKeys,
 }: {
   title: string;
   description: string;
@@ -189,10 +191,12 @@ function ImportSection({
   projectId: string;
   directory?: boolean;
   tips: string[];
+  invalidateKeys: string[];
 }) {
   const [status, setStatus] = useState<ImportStatus>("idle");
   const [result, setResult] = useState<ImportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const handleFiles = async (files: File[]) => {
     setStatus("uploading");
@@ -202,6 +206,10 @@ function ImportSection({
       const r = await postFiles(endpoint, files, projectId || undefined);
       setResult(r);
       setStatus("done");
+      // Invalidate relevant queries so navigating to those pages shows fresh data
+      for (const key of invalidateKeys) {
+        queryClient.invalidateQueries({ queryKey: [key] });
+      }
     } catch (err: any) {
       setError(err.message || "Upload failed");
       setStatus("idle");
@@ -311,6 +319,7 @@ export default function Import() {
           endpoint="/import/instrumentals"
           projectId={projectId}
           directory
+          invalidateKeys={["/api/instrumentals"]}
           tips={[
             "Select your entire beats folder — all audio files will be scanned",
             "ID3 tags (BPM, key, artist) are read automatically",
@@ -331,6 +340,7 @@ export default function Import() {
           endpoint="/import/lyrics"
           projectId={projectId}
           directory
+          invalidateKeys={["/api/lyrics"]}
           tips={[
             "Select your entire lyrics folder — all .txt files will be imported",
             "The file name (without extension) becomes the lyric title",
@@ -350,6 +360,7 @@ export default function Import() {
           accept=".song"
           endpoint="/import/studio-one"
           projectId={projectId}
+          invalidateKeys={["/api/songs"]}
           tips={[
             "Studio One .song files are ZIP archives — we extract metadata from them",
             "Tempo, key signature, and track name are read automatically",

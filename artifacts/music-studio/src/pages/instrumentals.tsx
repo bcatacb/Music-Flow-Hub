@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useListInstrumentals, useCreateInstrumental, useUpdateInstrumental, useDeleteInstrumental, useListProjects } from "@workspace/api-client-react";
+import { useListInstrumentals, useUpdateInstrumental, useDeleteInstrumental, useListProjects } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Plus, Piano, Trash2, Pencil, Music2 } from "lucide-react";
+import { Piano, Trash2, Pencil, Music2, Upload, Clock, Zap, Disc } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
+import { Link } from "wouter";
 
 type FormValues = {
   title: string;
@@ -37,26 +38,27 @@ const statusColors: Record<string, string> = {
   archived: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
 };
 
+function formatDuration(secs?: number | null) {
+  if (!secs) return null;
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 export default function Instrumentals() {
-  const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
 
   const { data: instrumentals = [], isLoading } = useListInstrumentals();
   const { data: projects = [] } = useListProjects();
-  const createMutation = useCreateInstrumental();
   const updateMutation = useUpdateInstrumental();
   const deleteMutation = useDeleteInstrumental();
 
   const { register, handleSubmit, reset, setValue, watch, formState: { isSubmitting } } = useForm<FormValues>({
     defaultValues: { status: "available", licenseType: "", projectId: "" }
   });
-
-  const openCreate = () => {
-    setEditing(null);
-    reset({ title: "", producer: "", bpm: "", musicalKey: "", genre: "", mood: "", durationSeconds: "", fileUrl: "", licenseType: "", status: "available", notes: "", projectId: "" });
-    setOpen(true);
-  };
 
   const openEdit = (inst: any) => {
     setEditing(inst);
@@ -74,7 +76,7 @@ export default function Instrumentals() {
       notes: inst.notes || "",
       projectId: inst.projectId?.toString() || "",
     });
-    setOpen(true);
+    setEditOpen(true);
   };
 
   const onSubmit = async (values: FormValues) => {
@@ -92,98 +94,138 @@ export default function Instrumentals() {
       notes: values.notes || undefined,
       projectId: values.projectId ? parseInt(values.projectId) : undefined,
     };
-    if (editing) {
-      await updateMutation.mutateAsync({ instrumentalId: editing.id, data: payload });
-    } else {
-      await createMutation.mutateAsync({ data: payload });
-    }
-    setOpen(false);
-    queryClient.invalidateQueries();
+    await updateMutation.mutateAsync({ instrumentalId: editing.id, data: payload });
+    setEditOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["/api/instrumentals"] });
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Delete this instrumental?")) {
+    if (confirm("Delete this beat?")) {
       await deleteMutation.mutateAsync({ instrumentalId: id });
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({ queryKey: ["/api/instrumentals"] });
     }
   };
 
-  const formatDuration = (secs?: number | null) => {
-    if (!secs) return null;
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m}:${s.toString().padStart(2, "0")}`;
-  };
+  const filtered = (instrumentals as any[]).filter((i) =>
+    !search || i.title.toLowerCase().includes(search.toLowerCase()) ||
+    (i.producer && i.producer.toLowerCase().includes(search.toLowerCase()))
+  );
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Instrumentals</h1>
-          <p className="text-muted-foreground mt-1">Manage your beats and instrumental tracks</p>
+          <h1 className="text-3xl font-bold tracking-tight">Beats</h1>
+          <p className="text-muted-foreground mt-1">
+            {(instrumentals as any[]).length} beat{(instrumentals as any[]).length !== 1 ? "s" : ""} in your library
+          </p>
         </div>
-        <Button onClick={openCreate} className="gap-2">
-          <Plus className="h-4 w-4" /> Add Instrumental
-        </Button>
+        <Link href="/import">
+          <Button className="gap-2 bg-violet-600 hover:bg-violet-500">
+            <Upload className="h-4 w-4" /> Import Beats
+          </Button>
+        </Link>
       </div>
 
+      {/* Search */}
+      {(instrumentals as any[]).length > 0 && (
+        <Input
+          placeholder="Search beats by title or producer…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-sm bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-600"
+        />
+      )}
+
+      {/* Content */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => <div key={i} className="h-48 rounded-xl bg-card animate-pulse" />)}
         </div>
-      ) : instrumentals.length === 0 ? (
+      ) : filtered.length === 0 && (instrumentals as any[]).length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <Piano className="h-16 w-16 text-muted-foreground/30 mb-4" />
-          <h3 className="text-xl font-semibold text-muted-foreground">No instrumentals yet</h3>
-          <p className="text-sm text-muted-foreground/70 mt-1 mb-4">Add your first beat or track</p>
-          <Button onClick={openCreate} variant="outline">Add Instrumental</Button>
+          <div className="w-20 h-20 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-5">
+            <Piano className="h-10 w-10 text-violet-400" />
+          </div>
+          <h3 className="text-xl font-semibold">No beats yet</h3>
+          <p className="text-muted-foreground mt-2 max-w-sm text-sm">
+            Import your beats folder and we'll extract BPM, key, duration, and producer name automatically from the audio files.
+          </p>
+          <Link href="/import">
+            <Button className="mt-6 gap-2 bg-violet-600 hover:bg-violet-500">
+              <Upload className="h-4 w-4" /> Import Your Beats
+            </Button>
+          </Link>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">
+          No beats match "<span className="text-white">{search}</span>"
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {instrumentals.map((inst: any) => (
+          {filtered.map((inst: any) => (
             <Card key={inst.id} className="group relative overflow-hidden border border-border hover:border-primary/30 transition-all duration-200">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <CardTitle className="text-base truncate">{inst.title}</CardTitle>
-                    {inst.producer && <p className="text-sm text-muted-foreground mt-0.5">by {inst.producer}</p>}
+                    {inst.producer && (
+                      <p className="text-sm text-muted-foreground mt-0.5">by {inst.producer}</p>
+                    )}
                   </div>
-                  <Badge className={`text-xs border shrink-0 ${statusColors[inst.status]}`}>
-                    {inst.status.replace("_", " ")}
+                  <Badge className={`text-xs border shrink-0 ${statusColors[inst.status] || statusColors.available}`}>
+                    {inst.status?.replace("_", " ")}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-2 mb-3">
+                {/* Metadata row */}
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-3">
                   {inst.bpm && (
-                    <Badge variant="secondary" className="text-xs">{inst.bpm} BPM</Badge>
+                    <span className="flex items-center gap-1">
+                      <Zap className="h-3 w-3 text-violet-400" />{inst.bpm} BPM
+                    </span>
                   )}
                   {inst.musicalKey && (
-                    <Badge variant="secondary" className="text-xs">{inst.musicalKey}</Badge>
+                    <span className="flex items-center gap-1">
+                      <Disc className="h-3 w-3 text-blue-400" />{inst.musicalKey}
+                    </span>
+                  )}
+                  {formatDuration(inst.durationSeconds) && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />{formatDuration(inst.durationSeconds)}
+                    </span>
                   )}
                   {inst.genre && (
-                    <Badge variant="outline" className="text-xs">{inst.genre}</Badge>
+                    <span className="flex items-center gap-1">
+                      <Music2 className="h-3 w-3" />{inst.genre}
+                    </span>
                   )}
-                  {inst.mood && (
-                    <Badge variant="outline" className="text-xs">{inst.mood}</Badge>
-                  )}
+                </div>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {inst.mood && <Badge variant="outline" className="text-xs">{inst.mood}</Badge>}
                   {inst.licenseType && (
                     <Badge variant="outline" className="text-xs capitalize">{inst.licenseType.replace("_", " ")}</Badge>
                   )}
                 </div>
-                {formatDuration(inst.durationSeconds) && (
-                  <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
-                    <Music2 className="h-3 w-3" /> {formatDuration(inst.durationSeconds)}
-                  </p>
-                )}
+
                 {inst.notes && (
                   <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{inst.notes}</p>
                 )}
+
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button size="sm" variant="outline" className="gap-1 flex-1" onClick={() => openEdit(inst)}>
-                    <Pencil className="h-3 w-3" /> Edit
+                    <Pencil className="h-3 w-3" /> Edit Metadata
                   </Button>
-                  <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(inst.id)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive hover:bg-destructive/10"
+                    onClick={() => handleDelete(inst.id)}
+                  >
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
@@ -193,10 +235,11 @@ export default function Instrumentals() {
         </div>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      {/* Edit Dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit Instrumental" : "New Instrumental"}</DialogTitle>
+            <DialogTitle>Edit Beat — {editing?.title}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -214,7 +257,7 @@ export default function Instrumentals() {
                   <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">None</SelectItem>
-                    {projects.map((p: any) => <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>)}
+                    {(projects as any[]).map((p: any) => <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -224,9 +267,12 @@ export default function Instrumentals() {
               </div>
               <div className="space-y-1">
                 <Label>Key</Label>
-                <Select value={watch("musicalKey")} onValueChange={v => setValue("musicalKey", v)}>
+                <Select value={watch("musicalKey") || "__none__"} onValueChange={v => setValue("musicalKey", v === "__none__" ? "" : v)}>
                   <SelectTrigger><SelectValue placeholder="Select key" /></SelectTrigger>
-                  <SelectContent>{KEYS.map(k => <SelectItem key={k} value={k}>{k}</SelectItem>)}</SelectContent>
+                  <SelectContent>
+                    <SelectItem value="__none__">None</SelectItem>
+                    {KEYS.map(k => <SelectItem key={k} value={k}>{k}</SelectItem>)}
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
@@ -253,7 +299,7 @@ export default function Instrumentals() {
               </div>
               <div className="space-y-1">
                 <Label>Status</Label>
-                <Select value={watch("status")} onValueChange={v => setValue("status", v)}>
+                <Select value={watch("status") || "available"} onValueChange={v => setValue("status", v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{STATUSES.map(s => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}</SelectContent>
                 </Select>
@@ -268,8 +314,8 @@ export default function Instrumentals() {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting}>{editing ? "Save Changes" : "Create"}</Button>
+              <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>Save Changes</Button>
             </DialogFooter>
           </form>
         </DialogContent>
