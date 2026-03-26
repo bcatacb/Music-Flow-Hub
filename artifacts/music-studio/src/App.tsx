@@ -14,6 +14,7 @@ import Instrumentals from "./pages/instrumentals";
 import Releases from "./pages/releases";
 import Analytics from "./pages/analytics";
 import Import from "./pages/import";
+import Stems from "./pages/stems";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,6 +37,7 @@ function Router() {
         <Route path="/releases" component={Releases} />
         <Route path="/analytics" component={Analytics} />
         <Route path="/import" component={Import} />
+        <Route path="/stems" component={Stems} />
         <Route component={NotFound} />
       </Switch>
     </StudioLayout>

@@ -22,7 +22,8 @@ import {
   Guitar,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { getApiUrl } from "@/lib/utils";
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const STEM_TYPE_LABELS: Record<string, string> = {
   drums: "Drums",
@@ -352,7 +353,7 @@ function StemImportDialog({
     formData.append("stemType", stemType);
 
     try {
-      const res = await fetch(`${getApiUrl()}/import/stems`, {
+      const res = await fetch(`${BASE}/api/import/stems`, {
         method: "POST",
         body: formData,
       });

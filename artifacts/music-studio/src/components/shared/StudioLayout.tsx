@@ -9,6 +9,7 @@ import {
   Radio, 
   BarChart3,
   Upload,
+  Layers,
   LogOut,
   Settings,
   Bell
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { href: "/instrumentals", label: "Beats", icon: Piano },
   { href: "/releases", label: "Releases", icon: Radio },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/stems", label: "Stems", icon: Layers },
   { href: "/import", label: "Import", icon: Upload },
 ];
 
