@@ -35,7 +35,7 @@ export default function Lyrics() {
     form.reset();
   };
 
-  const filtered = lyrics.filter(l => l.title.toLowerCase().includes(search.toLowerCase()));
+  const filtered = Array.isArray(lyrics) ? lyrics.filter(l => l.title.toLowerCase().includes(search.toLowerCase())) : [];
 
   return (
     <div className="space-y-8 pb-12 h-full flex flex-col">

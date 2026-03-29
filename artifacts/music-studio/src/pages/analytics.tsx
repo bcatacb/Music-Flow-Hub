@@ -59,16 +59,16 @@ export default function Analytics() {
     queryClient.invalidateQueries();
   };
 
-  const totalStreams = summary.reduce((sum: number, s: any) => sum + (s.totalStreams || 0), 0);
-  const totalDownloads = summary.reduce((sum: number, s: any) => sum + (s.totalDownloads || 0), 0);
-  const totalLikes = summary.reduce((sum: number, s: any) => sum + (s.totalLikes || 0), 0);
+  const totalStreams = Array.isArray(summary) ? summary.reduce((sum: number, s: any) => sum + (s.totalStreams || 0), 0) : 0;
+  const totalDownloads = Array.isArray(summary) ? summary.reduce((sum: number, s: any) => sum + (s.totalDownloads || 0), 0) : 0;
+  const totalLikes = Array.isArray(summary) ? summary.reduce((sum: number, s: any) => sum + (s.totalLikes || 0), 0) : 0;
 
-  const chartData = summary.map((s: any) => ({
+  const chartData = Array.isArray(summary) ? summary.map((s: any) => ({
     name: s.songTitle?.length > 15 ? s.songTitle.slice(0, 15) + "…" : s.songTitle,
     Streams: s.totalStreams || 0,
     Downloads: s.totalDownloads || 0,
     Likes: s.totalLikes || 0,
-  }));
+  })) : [];
 
   return (
     <div className="space-y-6">
@@ -176,7 +176,7 @@ export default function Analytics() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {summary.map((s: any) => (
+              {Array.isArray(summary) && summary.map((s: any) => (
                 <div key={s.songId} className="flex items-center justify-between py-3 border-b border-border last:border-0">
                   <p className="font-medium text-sm">{s.songTitle}</p>
                   <div className="flex gap-4 text-sm text-muted-foreground">
@@ -202,7 +202,7 @@ export default function Analytics() {
               <Label>Song *</Label>
               <Select value={watch("songId")} onValueChange={v => setValue("songId", v)}>
                 <SelectTrigger><SelectValue placeholder="Select song" /></SelectTrigger>
-                <SelectContent>{songs.map((s: any) => <SelectItem key={s.id} value={s.id.toString()}>{s.title}</SelectItem>)}</SelectContent>
+                <SelectContent>{Array.isArray(songs) && songs.map((s: any) => <SelectItem key={s.id} value={s.id.toString()}>{s.title}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="space-y-1">

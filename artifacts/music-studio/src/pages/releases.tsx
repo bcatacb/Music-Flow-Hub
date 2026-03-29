@@ -126,7 +126,7 @@ export default function Releases() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => <div key={i} className="h-48 rounded-xl bg-card animate-pulse" />)}
         </div>
-      ) : releases.length === 0 ? (
+      ) : Array.isArray(releases) && releases.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <Radio className="h-16 w-16 text-muted-foreground/30 mb-4" />
           <h3 className="text-xl font-semibold text-muted-foreground">No releases yet</h3>
@@ -135,7 +135,7 @@ export default function Releases() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {releases.map((r: any) => (
+          {Array.isArray(releases) && releases.map((r: any) => (
             <Card key={r.id} className="group overflow-hidden border border-border hover:border-primary/30 transition-all duration-200">
               {r.coverImageUrl && (
                 <div className="h-32 overflow-hidden">
@@ -221,7 +221,7 @@ export default function Releases() {
                   <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">None</SelectItem>
-                    {projects.map((p: any) => <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>)}
+                    {Array.isArray(projects) && projects.map((p: any) => <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

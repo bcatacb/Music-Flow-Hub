@@ -16,8 +16,8 @@ export default function Dashboard() {
   const { data: releases = [] } = useListReleases();
   const { data: analytics = [] } = useGetAnalyticsSummary();
 
-  const totalStreams = analytics.reduce((acc, curr) => acc + curr.totalStreams, 0);
-  const activeProjects = projects.filter(p => p.status === 'in_progress').length;
+  const totalStreams = Array.isArray(analytics) ? analytics.reduce((acc, curr) => acc + (curr.totalStreams || 0), 0) : 0;
+  const activeProjects = Array.isArray(projects) ? projects.filter(p => p.status === 'in_progress').length : 0;
 
   // Mock chart data based on overall vibe
   const chartData = [
@@ -57,9 +57,9 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { title: "Total Projects", value: projects.length, icon: FolderKanban, color: "text-blue-400", bg: "bg-blue-500/10" },
-          { title: "Total Songs", value: songs.length, icon: Music, color: "text-primary", bg: "bg-primary/10" },
-          { title: "Active Releases", value: releases.filter(r => r.status === 'pre_release' || r.status === 'planning').length, icon: Radio, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { title: "Total Projects", value: Array.isArray(projects) ? projects.length : 0, icon: FolderKanban, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { title: "Total Songs", value: Array.isArray(songs) ? songs.length : 0, icon: Music, color: "text-primary", bg: "bg-primary/10" },
+          { title: "Active Releases", value: Array.isArray(releases) ? releases.filter(r => r.status === 'pre_release' || r.status === 'planning').length : 0, icon: Radio, color: "text-emerald-400", bg: "bg-emerald-500/10" },
           { title: "Total Streams", value: totalStreams.toLocaleString(), icon: Play, color: "text-purple-400", bg: "bg-purple-500/10" },
         ].map((stat, i) => (
           <div key={i} className="glass-panel p-6 rounded-2xl hover:-translate-y-1 transition-transform duration-300">
@@ -126,7 +126,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            ) : songs.length === 0 ? (
+            ) : !Array.isArray(songs) || songs.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground flex flex-col items-center">
                 <Music className="h-8 w-8 mb-2 opacity-20" />
                 <p>No songs created yet.</p>

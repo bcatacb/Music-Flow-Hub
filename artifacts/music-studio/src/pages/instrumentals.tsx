@@ -106,10 +106,10 @@ export default function Instrumentals() {
     }
   };
 
-  const filtered = (instrumentals as any[]).filter((i) =>
+  const filtered = Array.isArray(instrumentals) ? (instrumentals as any[]).filter((i) =>
     !search || i.title.toLowerCase().includes(search.toLowerCase()) ||
     (i.producer && i.producer.toLowerCase().includes(search.toLowerCase()))
-  );
+  ) : [];
 
   return (
     <div className="space-y-6">
@@ -118,7 +118,7 @@ export default function Instrumentals() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Beats</h1>
           <p className="text-muted-foreground mt-1">
-            {(instrumentals as any[]).length} beat{(instrumentals as any[]).length !== 1 ? "s" : ""} in your library
+            {(Array.isArray(instrumentals) ? (instrumentals as any[]).length : 0)} beat{(Array.isArray(instrumentals) && (instrumentals as any[]).length !== 1) ? "s" : ""} in your library
           </p>
         </div>
         <Link href="/import">
@@ -129,7 +129,7 @@ export default function Instrumentals() {
       </div>
 
       {/* Search */}
-      {(instrumentals as any[]).length > 0 && (
+      {Array.isArray(instrumentals) && (instrumentals as any[]).length > 0 && (
         <Input
           placeholder="Search beats by title or producer…"
           value={search}
@@ -143,7 +143,7 @@ export default function Instrumentals() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => <div key={i} className="h-48 rounded-xl bg-card animate-pulse" />)}
         </div>
-      ) : filtered.length === 0 && (instrumentals as any[]).length === 0 ? (
+      ) : filtered.length === 0 && !(Array.isArray(instrumentals) && (instrumentals as any[]).length > 0) ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <div className="w-20 h-20 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-5">
             <Piano className="h-10 w-10 text-violet-400" />
@@ -257,7 +257,7 @@ export default function Instrumentals() {
                   <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">None</SelectItem>
-                    {(projects as any[]).map((p: any) => <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>)}
+                    {Array.isArray(projects) && (projects as any[]).map((p: any) => <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

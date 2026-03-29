@@ -146,7 +146,7 @@ export default function StemsPage() {
   const { mutate: deleteStem } = useDeleteStem();
   const { mutate: createStem } = useCreateStem();
 
-  const stems = stemsRaw as any[];
+  const stems = Array.isArray(stemsRaw) ? stemsRaw : [];
 
   const filtered = stems.filter((s) => {
     if (filterSongId !== "all" && String(s.songId) !== filterSongId) return false;
@@ -227,7 +227,7 @@ export default function StemsPage() {
           </SelectTrigger>
           <SelectContent className="bg-zinc-900 border-zinc-700">
             <SelectItem value="all">All songs</SelectItem>
-            {(songs as any[]).map((s) => (
+            {Array.isArray(songs) && (songs as any[]).map((s) => (
               <SelectItem key={s.id} value={String(s.id)}>{s.title}</SelectItem>
             ))}
           </SelectContent>
@@ -301,7 +301,7 @@ export default function StemsPage() {
       <StemImportDialog
         open={showImport}
         onClose={() => setShowImport(false)}
-        songs={songs as any[]}
+        songs={Array.isArray(songs) ? songs : []}
         onDone={() => queryClient.invalidateQueries({ queryKey: ["listStems"] })}
       />
 
@@ -309,7 +309,7 @@ export default function StemsPage() {
       <CreateStemDialog
         open={showCreate}
         onClose={() => setShowCreate(false)}
-        songs={songs as any[]}
+        songs={Array.isArray(songs) ? songs : []}
         onCreate={(data) => {
           createStem({ data } as any, {
             onSuccess: () => {
@@ -426,7 +426,7 @@ function StemImportDialog({
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-900 border-zinc-700">
                   <SelectItem value="none">None (unassigned)</SelectItem>
-                  {songs.map((s) => (
+                  {Array.isArray(songs) && songs.map((s) => (
                     <SelectItem key={s.id} value={String(s.id)}>{s.title}</SelectItem>
                   ))}
                 </SelectContent>

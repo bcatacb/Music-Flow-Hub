@@ -36,7 +36,7 @@ export default function Projects() {
     form.reset();
   };
 
-  const filtered = projects.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = Array.isArray(projects) ? projects.filter(p => p.name.toLowerCase().includes(search.toLowerCase())) : [];
 
   return (
     <div className="space-y-8 pb-12">

@@ -299,7 +299,7 @@ export default function Import() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__none__">None</SelectItem>
-            {projects.map((p: any) => (
+            {Array.isArray(projects) && projects.map((p: any) => (
               <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
             ))}
           </SelectContent>

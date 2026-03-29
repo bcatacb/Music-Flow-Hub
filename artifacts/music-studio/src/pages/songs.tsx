@@ -47,7 +47,7 @@ export default function Songs() {
     form.reset();
   };
 
-  const filtered = songs.filter(s => s.title.toLowerCase().includes(search.toLowerCase()));
+  const filtered = Array.isArray(songs) ? songs.filter(s => s.title.toLowerCase().includes(search.toLowerCase())) : [];
 
   const formatDuration = (seconds?: number | null) => {
     if (!seconds) return "--:--";
@@ -92,7 +92,7 @@ export default function Songs() {
                     className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary focus:outline-none transition-all"
                   >
                     <option value="">-- None --</option>
-                    {lyrics.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}
+                    {Array.isArray(lyrics) && lyrics.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}
                   </select>
                 </div>
                 <div className="space-y-2">
@@ -102,7 +102,7 @@ export default function Songs() {
                     className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all"
                   >
                     <option value="">-- None --</option>
-                    {instrumentals.map(i => <option key={i.id} value={i.id}>{i.title}</option>)}
+                    {Array.isArray(instrumentals) && instrumentals.map(i => <option key={i.id} value={i.id}>{i.title}</option>)}
                   </select>
                 </div>
               </div>
@@ -115,7 +115,7 @@ export default function Songs() {
                     className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary focus:outline-none transition-all"
                   >
                     <option value="">-- Standalone --</option>
-                    {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    {Array.isArray(projects) && projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
                 <div className="space-y-2">
