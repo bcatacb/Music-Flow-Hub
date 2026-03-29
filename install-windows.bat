@@ -30,7 +30,11 @@ if not exist "%DATA_DIR%\postgres" mkdir "%DATA_DIR%\postgres"
 :: Check for Node.js
 echo [1/5] Checking Node.js...
 node --version >nul 2>&1
-if %errorLevel% neq 0 (
+if %errorLevel% neq 0 goto InstallNodeJS
+for /f "tokens=*" %%a in ('node --version') do echo Found: %%a
+goto CheckPnpm
+
+:InstallNodeJS
     echo Installing Node.js 24 LTS...
     echo Downloading Node.js installer...
     powershell -Command "Invoke-WebRequest -Uri 'https://nodejs.org/dist/v24.0.0/node-v24.0.0-x64.msi' -OutFile '%TEMP%\node-installer.msi'"
@@ -44,47 +48,48 @@ if %errorLevel% neq 0 (
     set "PATH=%PATH%;%ProgramFiles%\nodejs"
     del "%TEMP%\node-installer.msi"
     echo Node.js installed successfully!
-) else (
-    for /f "tokens=*" %%a in ('node --version') do echo Found: %%a
-)
+    goto CheckPnpm
 
-:: Check for pnpm
+:CheckPnpm
 echo.
 echo [2/5] Checking pnpm...
 pnpm --version >nul 2>&1
-if %errorLevel% neq 0 (
+if %errorLevel% neq 0 goto InstallPnpm
+for /f "tokens=*" %%a in ('pnpm --version') do echo Found: %%a
+goto CheckPostgres
+
+:InstallPnpm
     echo Installing pnpm...
     powershell -Command "iwr https://get.pnpm.io/install.ps1 -useb | iex"
     set "PATH=%PATH%;%LOCALAPPDATA%\pnpm"
     echo pnpm installed!
-) else (
-    for /f "tokens=*" %%a in ('pnpm --version') do echo Found: %%a
-)
+    goto CheckPostgres
 
-:: Check for PostgreSQL
+:CheckPostgres
 echo.
 echo [3/5] Checking PostgreSQL...
 "%ProgramFiles%\PostgreSQL\14\bin\psql.exe" --version >nul 2>&1
-if %errorLevel% neq 0 (
-    echo.
-    echo ==========================================
-    echo    POSTGRESQL NOT FOUND
-    echo ==========================================
-    echo.
-    echo Please download and install PostgreSQL 14+ from:
-    echo https://www.postgresql.org/download/windows/
-    echo.
-    echo During installation:
-    echo - Set password for 'postgres' user to: sonicstudio
-    echo - Keep default port: 5432
-    echo - Install pgAdmin (optional)
-    echo.
-    echo After installing PostgreSQL, run this installer again.
-    echo.
-    start https://www.postgresql.org/download/windows/
-    pause
-    exit /b 1
-)
+if %errorLevel% equ 0 goto PostgresFound
+echo.
+echo ==========================================
+echo    POSTGRESQL NOT FOUND
+echo ==========================================
+echo.
+echo Please download and install PostgreSQL 14+ from:
+echo https://www.postgresql.org/download/windows/
+echo.
+echo During installation:
+echo - Set password for 'postgres' user to: sonicstudio
+echo - Keep default port: 5432
+echo - Install pgAdmin (optional)
+echo.
+echo After installing PostgreSQL, run this installer again.
+echo.
+start https://www.postgresql.org/download/windows/
+pause
+exit /b 1
+
+:PostgresFound
 echo PostgreSQL found!
 
 :: Setup database
